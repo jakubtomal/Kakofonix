@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".DifficultySelectionActivity">
+
+    <Button
+        android:id="@+id/easybutton"
+        android:layout_width="250dp"
+        android:layout_height="75dp"
+        android:layout_marginTop="50dp"
+        android:onClick="ChooseDifficulty"
+        android:text="easy"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/mediumbutton"
+        android:layout_width="250dp"
+        android:layout_height="75dp"
+        android:layout_marginTop="100dp"
+        android:onClick="ChooseDifficulty"
+        android:text="medium"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/easybutton" />
+
+    <Button
+        android:id="@+id/hardbutton"
+        android:layout_width="250dp"
+        android:layout_height="75dp"
+        android:layout_marginTop="100dp"
+        android:onClick="ChooseDifficulty"
+        android:text="hard"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/mediumbutton" />
+</android.support.constraint.ConstraintLayout>
