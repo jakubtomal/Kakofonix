@@ -7,7 +7,7 @@ import java.io.Serializable;
 
 public class Difficulty {
 
-    private MediaPlayer song;
+    private MediaPlayer[] song;
     private int ballsSpeed;
     private int chanceToAppearance;
     private int distanceBetweenBalls;
@@ -19,7 +19,7 @@ public class Difficulty {
         {
             case "easy":
             {
-                song = MediaPlayer.create(context , R.raw.track01);
+                song[0] = MediaPlayer.create(context , R.raw.track01);
                 ballsSpeed = 2;
                 chanceToAppearance = 50;
                 distanceBetweenBalls = 50;
@@ -28,7 +28,7 @@ public class Difficulty {
             }
             case "medium":
             {
-                song = MediaPlayer.create(context , R.raw.track02);
+                song[0] = MediaPlayer.create(context , R.raw.track02);
                 ballsSpeed = 4;
                 chanceToAppearance = 70;
                 distanceBetweenBalls = 50;
@@ -38,7 +38,7 @@ public class Difficulty {
 
             case "hard":
             {
-                song = MediaPlayer.create(context , R.raw.track03);
+                song[0] = MediaPlayer.create(context , R.raw.track03);
                 ballsSpeed = 10;
                 chanceToAppearance = 90;
                 distanceBetweenBalls = 50;
@@ -49,7 +49,7 @@ public class Difficulty {
     }
 
     public MediaPlayer getSong() {
-        return song;
+        return song[0];
     }
 
     public int getBallsSpeed() {

@@ -14,6 +14,7 @@ import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
+import android.widget.Button;
 
 import java.io.IOException;
 import java.util.Random;
@@ -30,6 +31,7 @@ public class GameLoop extends SurfaceView implements Runnable {
     int trafienie2 = 0;
 
     Thread thread = null;
+    boolean running = true;
     double frame_per_second , frame_time_seconds , frame_time_ms , frame_time_ns;
     double tLF,tEOR,delta_t;
     double theta,theta_per_sec;
@@ -37,7 +39,7 @@ public class GameLoop extends SurfaceView implements Runnable {
     // do rysowania
     Paint red_paintbrush_fill , blue_paintbrush_fill ,  green_paintbrush_fill , yellow_paintbrush_fill , black_paintbrush_fill;
     Paint red_paintbrush_stroke , blue_paintbrush_stroke ,  green_paintbrush_stroke , yellow_paintbrush_stroke;
-    Paint white_text;
+    Paint white_text,black_text;
 
     RectF buttonBlue , buttonRed , buttonYellow;
 
@@ -98,8 +100,54 @@ public class GameLoop extends SurfaceView implements Runnable {
         frame_time_ns = frame_time_ms * 1000000;
     }
 
+
+
+    @Override
+    public void run() {
+        while(true) {
+            prepPaintBrushes();
+
+            tLF = System.nanoTime();
+            delta_t = 0;
+
+
+            while (CanDraw) {
+
+
+                if (!surfaceHolder.getSurface().isValid()) {
+                    continue;
+                }
+                update();
+                draw();
+
+
+                tEOR = System.nanoTime();
+
+                delta_t = frame_time_ns - (tEOR - tLF);
+
+                stats();
+
+                try {
+
+                    if (delta_t > 0) {
+
+                        thread.sleep((long) (delta_t / 1000000));
+                    }
+                    ;
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+
+                tLF = System.nanoTime();
+
+            }
+        }
+
+    }
+
     private void reset()
     {
+        CanDraw = true;
         zycie = 3;
         score = 0;
         Balls = new ArrayList<Ball>();
@@ -108,48 +156,29 @@ public class GameLoop extends SurfaceView implements Runnable {
 
     }
 
-    @Override
-    public void run() {
+    private void EndGame()
+    {
+        CanDraw = false;
+        track.pause();
+        canvas = surfaceHolder.lockCanvas();
+        canvas.drawColor(Color.BLACK);
+        canvas.drawText("PRZEGRALES " ,toPxs(25),toPxs(200),black_text);
+        canvas.drawText("SCORE " ,toPxs(140),toPxs(250),white_text);
+        canvas.drawText(""+score ,toPxs(140),toPxs(270),white_text);
 
-        prepPaintBrushes();
-
-        tLF = System.nanoTime();
-        delta_t = 0;
-
-        while (CanDraw){
-
-
-
-            if(!surfaceHolder.getSurface().isValid()){
-                continue;
+        surfaceHolder.unlockCanvasAndPost(canvas);
+        setOnTouchListener(new OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                if (event.getX() >= 0) reset();
+                return false;
             }
-            update();
-            draw();
-
-
-            tEOR = System.nanoTime();
-
-            delta_t = frame_time_ns - (tEOR-tLF);
-
-            stats();
-
-            try {
-
-                if (delta_t > 0) {
-
-                    thread.sleep((long) (delta_t / 1000000));
-                };
-            }catch (InterruptedException e){
-                e.printStackTrace();
-            }
-
-            tLF = System.nanoTime();
-        }
+        });
 
     }
 
     private void update(){
-        if(zycie < 1) reset();
+
         int lane = random.nextInt(3);
         int roll = random.nextInt(101);
         float width =getResources().getDisplayMetrics().widthPixels;
@@ -201,7 +230,6 @@ public class GameLoop extends SurfaceView implements Runnable {
                         Balls.remove(Balls.get(i));
                         clickSound.start();
                         score += 100;
-                        trafienie+=1;
                     }
                     else if (buttonBlue.contains(x,y) && RectF.intersects(buttonBlue , Balls.get(i))){
                         Balls.remove(Balls.get(i));
@@ -209,13 +237,11 @@ public class GameLoop extends SurfaceView implements Runnable {
                         //clickSound.stop();
                         clickSound.start();
                         score += 50;
-                        trafienie2+=1;
                     }
 
                     if (buttonRed.contains(x,y) && buttonRed.contains(Balls.get(i))) {
                         Balls.remove(Balls.get(i));
                         score += 100;
-                        trafienie+=1;
 
                         //clickSound.stop();
                         clickSound.start();
@@ -224,7 +250,6 @@ public class GameLoop extends SurfaceView implements Runnable {
                     else if (buttonRed.contains(x,y) && RectF.intersects(buttonRed , Balls.get(i))){
                         Balls.remove(Balls.get(i));
                         score += 50;
-                        trafienie2+=1;
 
                         //clickSound.stop();
                         clickSound.start();
@@ -232,7 +257,6 @@ public class GameLoop extends SurfaceView implements Runnable {
                     if (buttonYellow.contains(x,y) && buttonYellow.contains(Balls.get(i))){
                         Balls.remove(Balls.get(i));
                         score += 100;
-                        trafienie+=1;
 
                         //clickSound.stop();
                         clickSound.start();
@@ -240,7 +264,6 @@ public class GameLoop extends SurfaceView implements Runnable {
                     else if (buttonYellow.contains(x,y) && RectF.intersects(buttonYellow , Balls.get(i))){
                         Balls.remove(Balls.get(i));
                         score += 50;
-                        trafienie2+=1;
 
                         //clickSound.stop();
                         clickSound.start();
@@ -268,9 +291,10 @@ public class GameLoop extends SurfaceView implements Runnable {
         }
         canvas.drawText("score: " + score,300,300,white_text);
         canvas.drawText("zycie: " + zycie,0,50,white_text);
-        canvas.drawText("traf:"  + trafienie,0,100,white_text);
-        canvas.drawText("traf2: " + trafienie2,0,150,white_text);
-        surfaceHolder.unlockCanvasAndPost(canvas);;
+        surfaceHolder.unlockCanvasAndPost(canvas);
+
+        if(zycie < 1) EndGame();
+
 
     }
 
@@ -285,6 +309,12 @@ public class GameLoop extends SurfaceView implements Runnable {
         white_text = new Paint();
         white_text.setColor(Color.WHITE);
         white_text.setTextSize(60);
+
+        black_text = new Paint();
+        black_text.setColor(Color.BLACK);
+        black_text.setTextSize(150);
+        black_text.setShadowLayer(20,10,10,Color.RED);
+        black_text.setFakeBoldText(true);
 
         blue_paintbrush_fill = new Paint();
         blue_paintbrush_fill.setColor(Color.BLUE);

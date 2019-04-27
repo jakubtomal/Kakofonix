@@ -38,16 +38,7 @@ public class GameLoopActivity extends AppCompatActivity {
     }
 
 
-    public void EndingScreen(View view)
-    {
 
-        Intent intent;
-
-        intent = new Intent(this, EndGameActivity.class);
-        intent.putExtra("difficulty" ,  this.getIntent().getStringExtra("difficulty"));
-        startActivity(intent);
-
-    }
 
 
 
