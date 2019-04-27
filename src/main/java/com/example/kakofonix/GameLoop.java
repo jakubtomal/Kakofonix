@@ -355,7 +355,7 @@ public class GameLoop extends SurfaceView implements Runnable {
                 canvas.drawBitmap(bombImage, Balls.get(i).left, Balls.get(i).top, null);
             }
         }
-        canvas.drawText("score: " + score,300,300,white_text);
+        canvas.drawText("score: " + score,300,50,white_text);
         canvas.drawText("zycie: " + zycie,0,50,white_text);
         surfaceHolder.unlockCanvasAndPost(canvas);
 
