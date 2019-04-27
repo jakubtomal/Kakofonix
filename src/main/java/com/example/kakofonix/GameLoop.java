@@ -7,6 +7,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.PathEffect;
 import android.graphics.RectF;
 import android.media.MediaPlayer;
 import android.util.Log;
@@ -38,8 +39,8 @@ public class GameLoop extends SurfaceView implements Runnable {
 
     // do rysowania
     Paint red_paintbrush_fill , blue_paintbrush_fill ,  green_paintbrush_fill , yellow_paintbrush_fill , black_paintbrush_fill;
-    Paint red_paintbrush_stroke , blue_paintbrush_stroke ,  green_paintbrush_stroke , yellow_paintbrush_stroke;
-    Paint white_text,black_text;
+    Paint red_paintbrush_stroke , blue_paintbrush_stroke ,  green_paintbrush_stroke , yellow_paintbrush_stroke , purple_paintbrush_stroke;
+    Paint white_text,black_text , fill;
 
     RectF buttonBlue , buttonRed , buttonYellow;
 
@@ -49,13 +50,16 @@ public class GameLoop extends SurfaceView implements Runnable {
     SurfaceHolder surfaceHolder;
     Bitmap backGroundCheck;
     Bitmap ballImage;
+    Bitmap bombImage;
     Canvas canvas;
 
     //muzyka
     MediaPlayer clickSound;
+    MediaPlayer boomSound;
     MediaPlayer track;
 
     //ustawienia
+    Difficulty difficulty;
     Random random;
     int appearChance;
     int speed;
@@ -70,9 +74,11 @@ public class GameLoop extends SurfaceView implements Runnable {
         track.start();
         track.setLooping(true);
         clickSound = MediaPlayer.create(getContext(),R.raw.click2);
+        boomSound = MediaPlayer.create(getContext(),R.raw.boom003);
 
         backGroundCheck = BitmapFactory.decodeResource(getResources(),R.drawable.background);
-        ballImage = BitmapFactory.decodeResource(getResources(),R.drawable.ball2);
+        ballImage = BitmapFactory.decodeResource(getResources(),R.drawable.blackpearl);
+        bombImage = BitmapFactory.decodeResource(getResources(),R.drawable.bomb);
         CanDraw = false;
         surfaceHolder = getHolder();
 
@@ -85,9 +91,9 @@ public class GameLoop extends SurfaceView implements Runnable {
         random = new Random();
 
         //buttons
-        buttonBlue  = new RectF(toPxs(0),toPxs(400),toPxs(120),toPxs(520));
-        buttonYellow = new RectF( toPxs(120),toPxs(400),toPxs(240),toPxs(520));
-        buttonRed = new RectF(toPxs(240),toPxs(400),toPxs(360),toPxs(520));
+        buttonBlue  = new RectF(toPxs(20),toPxs(420),toPxs(100),toPxs(500));
+        buttonYellow = new RectF( toPxs(140),toPxs(420),toPxs(220),toPxs(500));
+        buttonRed = new RectF(toPxs(260),toPxs(420),toPxs(340),toPxs(500));
 
 
 
@@ -158,6 +164,7 @@ public class GameLoop extends SurfaceView implements Runnable {
 
     private void EndGame()
     {
+        boomSound.start();
         CanDraw = false;
         track.pause();
         canvas = surfaceHolder.lockCanvas();
@@ -187,22 +194,33 @@ public class GameLoop extends SurfaceView implements Runnable {
         if(!Balls.isEmpty()){
             if ( toPxs((int)Balls.get(Balls.size()-1).top) >  distanceBetweenBalls ){
                 if (roll < appearChance) {
-                    Balls.add(new Ball((int) (((width / 3) * lane) + (width / 3 / 2) - (ballImage.getWidth() / 2)), -100));
-                    Log.d("ball count", Integer.toString(Balls.size()));
+                    if(roll < 10)
+                    {
+                        Balls.add(new Ball((int) (((width / 3) * lane) + (width / 3 / 2) - (ballImage.getWidth() / 2)), -100, 1));
+                    }
+                    else {
+                        Balls.add(new Ball((int) (((width / 3) * lane) + (width / 3 / 2) - (ballImage.getWidth() / 2)), -100, 0));
+                    }
                 }
                 else
                 {
-                    Balls.add(new Ball( -150, -100));
+                    Balls.add(new Ball( -150, -100,0));
                 }
             }
         }
         else{
             if (roll < appearChance) {
-                Balls.add(new Ball((int) (((width / 3) * lane) + (width / 3 / 2) - (ballImage.getWidth() / 2)), -100));
+                if(roll < 10)
+                {
+                    Balls.add(new Ball((int) (((width / 3) * lane) + (width / 3 / 2) - (ballImage.getWidth() / 2)), -100, 1));
+                }
+                else {
+                    Balls.add(new Ball((int) (((width / 3) * lane) + (width / 3 / 2) - (ballImage.getWidth() / 2)), -100, 0));
+                }
             }
             else
             {
-                Balls.add(new Ball( -150, -100));
+                Balls.add(new Ball( -150, -100,0));
             }
         }
 
@@ -210,7 +228,7 @@ public class GameLoop extends SurfaceView implements Runnable {
         for( int i = 0 ; i < Balls.size() ; i++) {
             Balls.get(i).update(0, speed);
             if ( (int)Balls.get(i).top >getResources().getDisplayMetrics().heightPixels ){
-                if(Balls.get(i).left > 0)
+                if(Balls.get(i).left > 0 && Balls.get(i).type == 0)
                 {
                     zycie -=1;
                 }
@@ -227,47 +245,89 @@ public class GameLoop extends SurfaceView implements Runnable {
 
                 for( int i = 0 ; i < Balls.size() ; i++) {
                     if (buttonBlue.contains(x,y) && buttonBlue.contains(Balls.get(i))){
+                        if(Balls.get(i).type == 1)
+                        {
+                            boomSound.start();
+                            zycie -= 1;
+                        }
+                        else if(Balls.get(i).type == 0)
+                        {
+                            clickSound.start();
+                            score += 100;
+                        }
                         Balls.remove(Balls.get(i));
-                        clickSound.start();
-                        score += 100;
+
                     }
                     else if (buttonBlue.contains(x,y) && RectF.intersects(buttonBlue , Balls.get(i))){
+                        if(Balls.get(i).type == 1)
+                        {
+                            boomSound.start();
+                            zycie -= 1;
+                        }
+                        else if(Balls.get(i).type == 0)
+                        {
+                            clickSound.start();
+                            score += 50;
+                        }
                         Balls.remove(Balls.get(i));
-
-                        //clickSound.stop();
-                        clickSound.start();
-                        score += 50;
                     }
 
-                    if (buttonRed.contains(x,y) && buttonRed.contains(Balls.get(i))) {
-                        Balls.remove(Balls.get(i));
-                        score += 100;
 
-                        //clickSound.stop();
-                        clickSound.start();
+                    if (buttonRed.contains(x,y) && buttonRed.contains(Balls.get(i))) {
+                        if(Balls.get(i).type == 1)
+                        {
+                            boomSound.start();
+                            zycie -= 1;
+                        }
+                        else if(Balls.get(i).type == 0)
+                        {
+                            clickSound.start();
+                            score += 100;
+                        }
+                        Balls.remove(Balls.get(i));
                     }
 
                     else if (buttonRed.contains(x,y) && RectF.intersects(buttonRed , Balls.get(i))){
+                        if(Balls.get(i).type == 1)
+                        {
+                            boomSound.start();
+                            zycie -= 1;
+                        }
+                        else if(Balls.get(i).type == 0)
+                        {
+                            clickSound.start();
+                            score += 50;
+                        }
                         Balls.remove(Balls.get(i));
-                        score += 50;
-
-                        //clickSound.stop();
-                        clickSound.start();
                     }
+
                     if (buttonYellow.contains(x,y) && buttonYellow.contains(Balls.get(i))){
+                        if(Balls.get(i).type == 1)
+                        {
+                            boomSound.start();
+                            zycie -= 1;
+                        }
+                        else if(Balls.get(i).type == 0)
+                        {
+                            clickSound.start();
+                            score += 100;
+                        }
                         Balls.remove(Balls.get(i));
-                        score += 100;
-
-                        //clickSound.stop();
-                        clickSound.start();
                     }
+
                     else if (buttonYellow.contains(x,y) && RectF.intersects(buttonYellow , Balls.get(i))){
+                        if(Balls.get(i).type == 1)
+                        {
+                            boomSound.start();
+                            zycie -= 1;
+                        }
+                        else if(Balls.get(i).type == 0)
+                        {
+                            clickSound.start();
+                            score += 50;
+                        }
                         Balls.remove(Balls.get(i));
-                        score += 50;
-
-                        //clickSound.stop();
-                        clickSound.start();
-                    }
+                }
 
                 }
                 Log.d("touch listener", Float.toString(x)+","+Float.toString(y) );
@@ -281,17 +341,24 @@ public class GameLoop extends SurfaceView implements Runnable {
     private void draw(){
         canvas = surfaceHolder.lockCanvas();
         canvas.drawBitmap(backGroundCheck,0,0,null);
-        canvas.drawRoundRect(buttonBlue,180,180,blue_paintbrush_fill);
-        //canvas.drawRect(buttonBlue,blue_paintbrush_fill);
-        canvas.drawRoundRect(buttonYellow,180,180,yellow_paintbrush_fill);
-        //canvas.drawRect(buttonYellow,red_paintbrush_fill);
-        canvas.drawRoundRect(buttonRed,180,180,red_paintbrush_fill);
+
+        canvas.drawRoundRect(buttonBlue,180,180,fill);
+        canvas.drawRoundRect(buttonYellow,180,180,fill);
+        canvas.drawRoundRect(buttonRed,180,180,fill);
+
         for( int i = 0 ; i < Balls.size() ; i++){
-            canvas.drawBitmap(ballImage,Balls.get(i).left,Balls.get(i).top,null);
+            if(Balls.get(i).type == 0) {
+                canvas.drawBitmap(ballImage, Balls.get(i).left, Balls.get(i).top, null);
+            }
+            else if(Balls.get(i).type == 1)
+            {
+                canvas.drawBitmap(bombImage, Balls.get(i).left, Balls.get(i).top, null);
+            }
         }
         canvas.drawText("score: " + score,300,300,white_text);
         canvas.drawText("zycie: " + zycie,0,50,white_text);
         surfaceHolder.unlockCanvasAndPost(canvas);
+
 
         if(zycie < 1) EndGame();
 
@@ -337,6 +404,14 @@ public class GameLoop extends SurfaceView implements Runnable {
         red_paintbrush_stroke.setColor(Color.RED);
         red_paintbrush_stroke.setStyle(Paint.Style.STROKE);
         red_paintbrush_stroke.setStrokeWidth(10);
+
+        purple_paintbrush_stroke = new Paint();
+        purple_paintbrush_stroke.setColor(Color.rgb(70,2,115));
+        purple_paintbrush_stroke.setStyle(Paint.Style.STROKE);
+        purple_paintbrush_stroke.setStrokeWidth(5);
+        purple_paintbrush_stroke.setShadowLayer(15,0,0,Color.rgb(240,4,217));
+        fill = purple_paintbrush_stroke;
+
 
         blue_paintbrush_stroke = new Paint();
         blue_paintbrush_stroke.setColor(Color.BLUE);

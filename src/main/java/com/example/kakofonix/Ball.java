@@ -6,9 +6,11 @@ import android.graphics.RectF;
 public class Ball  extends RectF{
     //public int x;
    // public int y;
+    public int type;
 
-    public Ball(int x , int y ) {
+    public Ball(int x , int y , int type ) {
         super(x,y,x+100,y+100);
+        this.type = type;
     }
 
 
