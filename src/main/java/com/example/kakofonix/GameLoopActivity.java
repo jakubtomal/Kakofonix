@@ -1,15 +1,17 @@
 package com.example.kakofonix;
 
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 
 import com.example.kakofonix.GameLoop;
 
 public class GameLoopActivity extends AppCompatActivity {
     GameLoop gameLoop;
-    Difficulty difficulty;// = (Difficulty) this.getIntent().getSerializableExtra("difficulty");
-    String mode;// = this.getIntent().getStringExtra("difficulty");
+    Difficulty difficulty;
+    String mode;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,5 +36,20 @@ public class GameLoopActivity extends AppCompatActivity {
         super.onPause();
         gameLoop.pause();
     }
+
+
+    public void EndingScreen(View view)
+    {
+
+        Intent intent;
+
+        intent = new Intent(this, EndGameActivity.class);
+        intent.putExtra("difficulty" ,  this.getIntent().getStringExtra("difficulty"));
+        startActivity(intent);
+
+    }
+
+
+
 }
 

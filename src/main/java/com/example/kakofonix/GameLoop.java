@@ -1,6 +1,7 @@
 package com.example.kakofonix;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -24,7 +25,7 @@ public class GameLoop extends SurfaceView implements Runnable {
 
     //test
 
-    int zycie = 0;
+    int zycie ;
     int trafienie = 0;
     int trafienie2 = 0;
 
@@ -33,6 +34,7 @@ public class GameLoop extends SurfaceView implements Runnable {
     double tLF,tEOR,delta_t;
     double theta,theta_per_sec;
 
+    // do rysowania
     Paint red_paintbrush_fill , blue_paintbrush_fill ,  green_paintbrush_fill , yellow_paintbrush_fill , black_paintbrush_fill;
     Paint red_paintbrush_stroke , blue_paintbrush_stroke ,  green_paintbrush_stroke , yellow_paintbrush_stroke;
     Paint white_text;
@@ -51,18 +53,20 @@ public class GameLoop extends SurfaceView implements Runnable {
     MediaPlayer clickSound;
     MediaPlayer track;
 
+    //ustawienia
     Random random;
     int appearChance;
     int speed;
-    int score = 0;
+    int score;
     int distanceBetweenBalls;
-    List<Ball> Balls = new ArrayList<Ball>();
+    List<Ball> Balls;
 
     public GameLoop(Context context , Difficulty difficulty){
         super(context);
 
         track = difficulty.getSong();
         track.start();
+        track.setLooping(true);
         clickSound = MediaPlayer.create(getContext(),R.raw.click2);
 
         backGroundCheck = BitmapFactory.decodeResource(getResources(),R.drawable.background);
@@ -70,9 +74,12 @@ public class GameLoop extends SurfaceView implements Runnable {
         CanDraw = false;
         surfaceHolder = getHolder();
 
+        zycie = 3;
         speed = toPxs(difficulty.getBallsSpeed());
+        score = 0;
         appearChance = difficulty.getChanceToAppearance();
         distanceBetweenBalls = toPxs(difficulty.getDistanceBetweenBalls());
+        Balls = new ArrayList<Ball>();
         random = new Random();
 
         //buttons
@@ -89,6 +96,16 @@ public class GameLoop extends SurfaceView implements Runnable {
         frame_time_seconds = 1 / frame_per_second;
         frame_time_ms = frame_time_seconds * 1000;
         frame_time_ns = frame_time_ms * 1000000;
+    }
+
+    private void reset()
+    {
+        zycie = 3;
+        score = 0;
+        Balls = new ArrayList<Ball>();
+        track.seekTo(0);
+        track.start();
+
     }
 
     @Override
@@ -132,6 +149,7 @@ public class GameLoop extends SurfaceView implements Runnable {
     }
 
     private void update(){
+        if(zycie < 1) reset();
         int lane = random.nextInt(3);
         int roll = random.nextInt(101);
         float width =getResources().getDisplayMetrics().widthPixels;
@@ -255,6 +273,8 @@ public class GameLoop extends SurfaceView implements Runnable {
         surfaceHolder.unlockCanvasAndPost(canvas);;
 
     }
+
+
 
     private void prepPaintBrushes() {
 

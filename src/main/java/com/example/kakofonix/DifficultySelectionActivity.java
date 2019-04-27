@@ -17,9 +17,6 @@ public class DifficultySelectionActivity extends AppCompatActivity {
         setContentView(R.layout.activity_difficult_selection);
     }
 
-    public void dupa(){
-
-    }
     public void ChooseDifficulty(View view)
     {
         Intent intent;

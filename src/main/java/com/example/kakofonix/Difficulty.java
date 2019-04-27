@@ -11,6 +11,7 @@ public class Difficulty {
     private int ballsSpeed;
     private int chanceToAppearance;
     private int distanceBetweenBalls;
+    private String mode;
 
     public Difficulty(Context context , String mode)
     {
@@ -22,6 +23,7 @@ public class Difficulty {
                 ballsSpeed = 2;
                 chanceToAppearance = 50;
                 distanceBetweenBalls = 50;
+                this.mode = mode;
                 break;
             }
             case "medium":
@@ -30,6 +32,7 @@ public class Difficulty {
                 ballsSpeed = 4;
                 chanceToAppearance = 70;
                 distanceBetweenBalls = 50;
+                this.mode = mode;
                 break;
             }
 
@@ -39,6 +42,7 @@ public class Difficulty {
                 ballsSpeed = 10;
                 chanceToAppearance = 90;
                 distanceBetweenBalls = 50;
+                this.mode = mode;
                 break;
             }
         }
@@ -58,5 +62,9 @@ public class Difficulty {
 
     public int getDistanceBetweenBalls() {
         return distanceBetweenBalls;
+    }
+
+    public String getMode() {
+        return mode;
     }
 }

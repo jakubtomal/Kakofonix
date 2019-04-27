@@ -9,6 +9,7 @@ import android.view.View;
 
 public class Menu extends AppCompatActivity {
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -21,10 +22,7 @@ public class Menu extends AppCompatActivity {
         //setSupportActionBar(myToolbar);
     }
 
-    public void dupa()
-    {
 
-    }
 
     public void ChooseButton(View view)
     {
