@@ -131,7 +131,6 @@ public class GameLoop extends SurfaceView implements Runnable {
 
                 delta_t = frame_time_ns - (tEOR - tLF);
 
-                stats();
 
                 try {
 
@@ -172,8 +171,14 @@ public class GameLoop extends SurfaceView implements Runnable {
         canvas.drawText("PRZEGRALES " ,toPxs(25),toPxs(200),black_text);
         canvas.drawText("SCORE " ,toPxs(140),toPxs(250),white_text);
         canvas.drawText(""+score ,toPxs(140),toPxs(270),white_text);
-
         surfaceHolder.unlockCanvasAndPost(canvas);
+        try {
+            thread.sleep(1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+
         setOnTouchListener(new OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
@@ -435,27 +440,16 @@ public class GameLoop extends SurfaceView implements Runnable {
     }
 
     public void pause(){
-        track.stop();
+        track.pause();
         CanDraw = false;
+        thread = null;
         Log.d("Thread" , "Pausing thread..." + Thread.currentThread().getId());
 
-        while (true){
 
-            try {
-                Log.d("Thread" , "Joining");
-                thread.join();
-                break;
-            }catch (InterruptedException e){
-                e.printStackTrace();
-            }
-        }
-
-        Log.d("Thread" , "THREAD IS PAUSED" + Thread.currentThread().getId());
-        thread = null;
-        Log.d("Thread" , "NULLED*******");
     }
 
     public void resume() {
+        track.start();
         CanDraw = true;
         Log.d("Thread" , "MAKING NEW");
         thread = new Thread(this);
@@ -480,8 +474,6 @@ public class GameLoop extends SurfaceView implements Runnable {
          Log.d("density",Float.toString(getResources().getDisplayMetrics().density));
          Log.d("density dpi",Integer.toString(getResources().getDisplayMetrics().densityDpi));
          */
-
-
 
 
         Log.d("--------","------------------");

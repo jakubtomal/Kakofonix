@@ -1,14 +1,11 @@
 package com.example.kakofonix;
 
-import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
-
-import com.example.kakofonix.GameLoop;
 
 public class GameLoopActivity extends AppCompatActivity {
+
     GameLoop gameLoop;
     Difficulty difficulty;
     String mode;
@@ -16,6 +13,7 @@ public class GameLoopActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        //setContentView(R.layout.activity_game_loop);
         mode = this.getIntent().getStringExtra("difficulty");
         difficulty = new Difficulty(this,mode);
         gameLoop = new GameLoop(this ,difficulty);
@@ -36,11 +34,4 @@ public class GameLoopActivity extends AppCompatActivity {
         super.onPause();
         gameLoop.pause();
     }
-
-
-
-
-
-
 }
-
